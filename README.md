@@ -15,7 +15,7 @@
 	<dependency>
 	    <groupId>com.github.madvirus</groupId>
 	    <artifactId>stack-simplifier</artifactId>
-	    <version>v0.0.1</version>
+	    <version>0.0.2</version>
 	</dependency>
 ```
 
