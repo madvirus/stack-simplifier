@@ -8,7 +8,7 @@ public class StackSimplier {
 	private static Pattern DEFAULT_PATTERN = Pattern.compile("^sun|^java|^com.sun");
 	
 	private Pattern excludeClassPattern;
-	private boolean useDefaultExcludeClassPattern;
+	private boolean useDefaultExcludeClassPattern = true;
 
 	public String simplify(Throwable exception) {
 		StringBuilder buff = new StringBuilder();
