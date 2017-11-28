@@ -1,10 +1,11 @@
 package stacksimp;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class StackSimplierTest {
     @Test
@@ -18,8 +19,14 @@ public class StackSimplierTest {
         } catch(Exception ex) {
             ex.printStackTrace(System.out);
             System.out.println("------");
-            System.out.println(simplier.simplify(ex));
+            String simplified = simplier.simplify(ex);
+            System.out.println(simplified);
+            assertNoContains(simplified, "\tat org.junit");
         }
+    }
+
+    private void assertNoContains(String simplified, String str) {
+        assertFalse(simplified.contains(str));
     }
 
 }
