@@ -8,8 +8,10 @@ public class StackSimplierBuilder {
         return new StackSimplierBuilder();
     }
 
+    private boolean useDefault = true;
     private boolean exSpring;
     private boolean exMybatis;
+    private boolean exHibernate;
     private boolean exTomcat;
     private boolean exJunit;
     private boolean exJdbcDriver;
@@ -24,6 +26,9 @@ public class StackSimplierBuilder {
         if (exMybatis) {
             exPats.add("^org.mybatis");
             exPats.add("^org.apache.ibatis");
+        }
+        if (exHibernate) {
+            exPats.add("^org.hibernate");
         }
         if (exTomcat) {
             exPats.add("^org.apache.tomcat");
@@ -43,12 +48,21 @@ public class StackSimplierBuilder {
         if (inSunProxy) {
             inPats.add("^com.sun.proxy");
         }
+
         StackSimplier simplier = new StackSimplier();
+        if (!useDefault) {
+            simplier.setUseDefaultExcludeClassPattern(false);
+        }
         simplier.setExcludeClassPatterns(exPats);
         if (!inPats.isEmpty()) {
             simplier.setIncludeClassPatterns(inPats);
         }
         return simplier;
+    }
+
+    public StackSimplierBuilder noUseDefault() {
+        useDefault = false;
+        return this;
     }
 
     public StackSimplierBuilder excludeSpring() {
@@ -61,15 +75,20 @@ public class StackSimplierBuilder {
         return this;
     }
 
+    public StackSimplierBuilder excludeHibernate() {
+        exHibernate = true;
+        return this;
+    }
+
     public StackSimplierBuilder excludeTomcat() {
         exTomcat = true;
         return this;
     }
-
     public StackSimplierBuilder excludeJunit() {
         exJunit = true;
         return this;
     }
+
     public StackSimplierBuilder excludeJdbcDriver() {
         exJdbcDriver = true;
         return this;
@@ -79,5 +98,4 @@ public class StackSimplierBuilder {
         inSunProxy = true;
         return this;
     }
-
 }

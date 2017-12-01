@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StackSimplierBuilderTest {
@@ -11,6 +12,12 @@ public class StackSimplierBuilderTest {
     void basicBuild() {
         StackSimplier simp = StackSimplierBuilder.builder().build();
         assertTrue(simp.isUseDefaultExcludeClassPattern());
+    }
+
+    @Test
+    void noUseDefault() {
+        StackSimplier simp = StackSimplierBuilder.builder().noUseDefault().build();
+        assertFalse(simp.isUseDefaultExcludeClassPattern());
     }
 
     @Test
@@ -23,6 +30,12 @@ public class StackSimplierBuilderTest {
     void excludeMybatis() {
         StackSimplier simp = StackSimplierBuilder.builder().excludeMybatis().build();
         assertContains(simp.getExcludePatterns(), "^org.mybatis", "^org.apache.ibatis");
+    }
+
+    @Test
+    void excludeHibernate() {
+        StackSimplier simp = StackSimplierBuilder.builder().excludeHibernate().build();
+        assertContains(simp.getExcludePatterns(), "^org.hibernate");
     }
 
     @Test
@@ -47,6 +60,28 @@ public class StackSimplierBuilderTest {
     void includeJunit() {
         StackSimplier simp = StackSimplierBuilder.builder().includeSunProxy().build();
         assertContains(simp.getIncludePatterns(), "^com.sun.proxy");
+    }
+
+    @Test
+    void composite() {
+        StackSimplier simp = StackSimplierBuilder.builder()
+                .noUseDefault()
+                .excludeSpring()
+                .excludeMybatis()
+                .excludeHibernate()
+                .excludeTomcat()
+                .excludeJdbcDriver()
+                .excludeJunit()
+                .includeSunProxy()
+                .build();
+
+        assertContains(simp.getExcludePatterns(),
+                "^org.springframework", "SpringCGLIB",
+                "^org.mybatis", "^org.apache.ibatis",
+                "^org.hibernate",
+                "^org.apache.tomcat", "^org.apache.catalina", "^org.apache.coyote",
+                "^oracle.jdbc.driver", "^com.mysql.jdbc", "^com.microsoft.sqlserver.jdbc",
+                "^org.junit");
     }
 
     private void assertContains(List<String> excludePatterns, String... patterns) {
