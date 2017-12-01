@@ -1,13 +1,15 @@
 package stacksimp;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class StackSimplier {
     private boolean useDefaultExcludeClassPattern = true;
-    private static ClassNamePatternMatcher DEFAULT_EXCLUDE_MATCHER = new ClassNamePatternMatcher("^sun", "^java", "^com.sun");
+    private static ClassNamePatternMatcher DEFAULT_EXCLUDE_MATCHER = new ClassNamePatternMatcher(Arrays.asList("^sun", "^java", "^com.sun"));
     private ClassNamePatternMatcher excludeMatcher;
     private ClassNamePatternMatcher includeMatcher;
 
@@ -62,6 +64,10 @@ public class StackSimplier {
     }
 
     public void setExcludeClassPatterns(String... patterns) {
+        excludeMatcher = new ClassNamePatternMatcher(Arrays.asList(patterns));
+    }
+
+    public void setExcludeClassPatterns(List<String> patterns) {
         excludeMatcher = new ClassNamePatternMatcher(patterns);
     }
 
@@ -70,16 +76,30 @@ public class StackSimplier {
     }
 
     public void setIncludeClassPatterns(String... patterns) {
+        includeMatcher = new ClassNamePatternMatcher(Arrays.asList(patterns));
+    }
+
+    public void setIncludeClassPatterns(List<String> patterns) {
         includeMatcher = new ClassNamePatternMatcher(patterns);
+    }
+
+    public List<String> getExcludePatterns() {
+        if (excludeMatcher == null) return Collections.emptyList();
+        else return Collections.unmodifiableList(excludeMatcher.patterns);
+    }
+
+    public List<String> getIncludePatterns() {
+        if (includeMatcher == null) return Collections.emptyList();
+        else return Collections.unmodifiableList(includeMatcher.patterns);
     }
 
     private static class ClassNamePatternMatcher {
         private List<String> patterns;
         private Pattern pattern;
 
-        public ClassNamePatternMatcher(String... patterns) {
-            this.patterns = Arrays.asList(patterns);
-            String regex = Arrays.stream(patterns)
+        public ClassNamePatternMatcher(List<String> patterns) {
+            this.patterns = new ArrayList<>(patterns);
+            String regex = patterns.stream()
                     .map(pat -> pat.replace(".", "\\."))
                     .collect(Collectors.joining("|"));
             pattern = Pattern.compile(regex);
