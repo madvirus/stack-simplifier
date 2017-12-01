@@ -15,7 +15,7 @@
 <dependency>
     <groupId>com.github.madvirus</groupId>
     <artifactId>stack-simplifier</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 
@@ -23,26 +23,46 @@
 
 ```java
 StackSimplier simp = new StackSimplier();
-simp.setExcludeClassPatterns(new String[] { 
+simp.setExcludeClassPatterns( 
         "org.junit", "org.tomcat", "org.eclipse", "org.springframework", 
-        "org.apache.tomcat", "oracle.jdbc", "SpringCGLIB" });
+        "org.apache.tomcat", "oracle.jdbc", "SpringCGLIB");
+simp.setIncludeClassPatterns("org.springframework.jdbc");
 String msg = simplifier.simplify(ex);
 ```
 
-The trace message that StackSimplier#simplify method creates contains 
+The trace message that StackSimplier#simplify method creates  
 
-* stack trace of which class name doesn't matches exclusion class pattern
-* but includes first stack trace whether it match or not
+* contains stack trace of which class name doesn't matches exclusion class patterns
+* but includes first stack trace whether it matches or not
+* and includes stack trace which matches inclusion class patterns(and exclusion class patterns).
 
-### default exclusion class patterns(regex)
+### default exclusion class patterns
 
-* ^sun|^java|^com.sun
+StackSimplier use following exclusion class pattern by default.
+ 
+* ^sun
+* ^java
+* ^com.sun
 
-### patterns of setExcludeClassPatterns
+### setUseDefaultExcludeClassPattern
 
-setExcludeClassPatterns:
-* specifiy additional exclusion class name pattern
+* specify whether to use default exclusion class patterns
+
+### setExcludeClassPatterns
+
+* specify additional exclusion class name pattern
+
+### setIncludeClassPatterns
+
+* specify inclusion class name pattern
+
+### class name pattern conversion rule
+
+rule:
 * replace dot notation by \\.
+
+ex:
+* ^org.springframework -> ^org\\.springframework
 
 ### sample
 
@@ -100,4 +120,19 @@ simplified exception trace(2):
 java.net.UnknownHostException: bad.server.xx
 	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:184)
 	at stacksimp.StackSimplierTest.simplify(StackSimplierTest.java:17)
+```
+
+## StackSimplierBuilder
+
+```java
+StackSimplier simp = StackSimplierBuilder.builder()
+        .noUseDefault() // no use default exclusion pattern
+        .excludeSpring() // exclude: ^org.springframework, SpringCGLIB
+        .excludeMybatis() // exclude: ^org.mybatis, ^org.apache.ibatis
+        .excludeHibernate() // exclude: ^org.hibernate
+        .excludeTomcat() // exclude: ^org.apache.tomcat, ^org.apache.catalina, ^org.apache.coyote 
+        .excludeJdbcDriver() // exclude: ^oracle.jdbc.driver, ^com.mysql.jdbc, ^com.microsoft.sqlserver.jdbc
+        .excludeJunit() // exclude: ^org.junit
+        .includeSunProxy() // include: ^com.sun.proxy
+        .build();
 ```
